@@ -5,29 +5,19 @@ import bcrypt from "bcrypt";
 export async function registerUser(
   firstName,
   lastName,
-  userName,
   email,
   phoneNumber,
   password,
-  about,
   avatar,
-  lastSeen,
-  online,
-  forgetPwd
 ) {
   try {
     const createUser = new UserM({
       firstName,
       lastName,
-      userName,
       email,
       phoneNumber,
       password,
-      about,
       avatar,
-      lastSeen,
-      online,
-      forgetPwd,
     });
     return await createUser.save();
   } catch (err) {
