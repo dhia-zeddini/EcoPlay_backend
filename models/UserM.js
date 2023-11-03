@@ -33,6 +33,22 @@ const userSchema = new Schema(
         type: String,
         default:"defaultAvatar.png"
       },
+      points: {
+        type: Number,
+        default:0
+      },
+      score: {
+        type: Number,
+        default:0
+      },
+      level: {
+        type: Number,
+        default:1
+      },
+      etatDelete: {
+        type: Boolean,
+        default:false
+      },
      
       forgetPwd: {
         type: String,
