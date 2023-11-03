@@ -17,6 +17,7 @@ const transporter = nodemailer.createTransport({
 });
 
  async function register(req, res, next) {
+  console.log(req.body);
   try {
     const {
       firstName,
@@ -106,7 +107,7 @@ const transporter = nodemailer.createTransport({
         })
         .then(() => {
           console.log("Message sent: %s");
-          console.log("html", html);
+          //console.log("html", html);
         })
         .catch((error) => {
           console.log(error);
@@ -118,7 +119,26 @@ const transporter = nodemailer.createTransport({
     res.status(500).json({ error: error.message });
   }
 }
+async function otp(req,res){
 
+  const code = req.user.code;
+    const paramCode = req.body.code;
+    if (code.trim() === paramCode.trim()) {
+      const tokenData = {
+        _id: req.user._id,
+        email: req.user.email,
+        code: code,
+      };
+      const token = await UserService.generateToken(
+        tokenData,
+        "secretKey",
+        "5m"
+      );
+      res.status(200).json({ status: true, token: token });
+    } else {
+      res.status(403).json("Invalid code");
+    }
+}
  async function newPwd(req, res) {
   try {
     if (req.body.newPwd !== req.body.confirmPwd) {
@@ -141,4 +161,4 @@ const transporter = nodemailer.createTransport({
   }
 }
 
-export default {register,login,forgetPwd,newPwd};
+export default {register,login,forgetPwd,newPwd,otp};

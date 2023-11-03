@@ -1,6 +1,6 @@
 import express from 'express';
 import authController from '../controllers/authC.js'; // Assuming .mjs extension for ESM
-import { verifyForgetPwd } from '../middlewares/verifyToken.js'; // Assuming .mjs extension for ESM
+import { verifyForgetPwd ,verifyToken} from '../middlewares/verifyToken.js'; // Assuming .mjs extension for ESM
 import multer from 'multer';
 
 const router = express.Router();
@@ -18,6 +18,7 @@ const upload = multer({
 router.post('/registration', upload.single("img"), authController.register);
 router.post('/login', authController.login);
 router.post('/forgetPwd', authController.forgetPwd);
-router.post('/newPwd', verifyForgetPwd, authController.newPwd);
+router.post('/otp', verifyToken,authController.otp);
+router.post('/newPwd', verifyToken, authController.newPwd);
 
 export default router;
