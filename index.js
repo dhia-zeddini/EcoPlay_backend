@@ -1,7 +1,14 @@
 import db from './config/DBConnection.js'
 import  express from 'express';
 const app =express()
-const port=process.env.PORT;
+const port=process.env.PORT || 9090;
+
+
+
+app.get("/", (req, res) => {
+  res.send("hello");
+});
+
 
 
 app.listen(port, () => {
