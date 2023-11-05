@@ -35,10 +35,13 @@ const challengeSchema = new mongoose.Schema({
       ref: 'User', 
     },
   ],
-  media: {
-    images: [String],
-    videos: [String],
-  },
+  media: [
+    {
+      type: String,
+      default: "1699199236672-EveryPlate.jpeg"
+    },
+  ],
+  
   comments: [
     {
       user: {
