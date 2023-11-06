@@ -1,15 +1,10 @@
 import express from "express";
-import challengesController from "../controllers/challenges.js"
-import upload from '../utils/multer.js'; 
-
-
-
+import challengesController from "../controllers/challenges.js";
+import multer from '../utils/multer.js'; // Assuming this is your Multer configuration
 
 const router = express.Router();
 
-
-
-router.post('/challenges', challengesController.createChallenge);
+router.post('/challenges', multer, challengesController.createChallenge);
 
 router.get('/challenges/:id', challengesController.getChallengeById);
 

@@ -5,20 +5,34 @@ import ChallengeM from "../models/challenges.js";
 // Create a new challenge
 const createChallenge = async (req, res) => {
   try {
-    const challengeData = req.body; 
-
+    const challengeData = req.body;
+    // Convert start_date and end_date from string to Date objects
+    challengeData.start_date = new Date(challengeData.start_date);
+    challengeData.end_date = new Date(challengeData.end_date);
+    // Convert point_value from string to Number
+    challengeData.point_value = Number(challengeData.point_value);
+    // Handle media file if uploaded
     if (req.file) {
-      challengeData.media = [req.file.filename];
-    } else {
-      challengeData.media = [];
-    }
+      const networkIP = '192.168.1.115'; // Replace with your actual server IP
 
-    const newChallenge = await ChallengeM.create(challengeData); 
-    res.status(201).json(newChallenge); 
+      // Set the media field to be a string containing the URL to the media
+      challengeData.media = `${req.protocol}://${networkIP}:9001/img/${req.file.filename}`;
+    } else {
+      challengeData.media = ''; // If no file uploaded, default to an empty string
+    }
+    
+    // Here, ensure that participants is an array of ObjectId's
+    // If your frontend sends an array of participant IDs as strings, you would convert them like this:
+
+
+    const newChallenge = await ChallengeM.create(challengeData);
+    res.status(201).json(newChallenge);
   } catch (error) {
-    res.status(500).json({ error: 'Challenge creation failed' }); // Handle errors with a 500 Internal Server Error
+    console.error(error); // Log the error for server-side debugging
+    res.status(500).json({ error: 'Challenge creation failed' }); // Send a 500 Internal Server Error response
   }
 };
+
 
 
 
