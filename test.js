@@ -23,6 +23,5 @@ newChallenge.save()
     console.error('Error creating and saving the challenge:', error);
   })
   .finally(() => {
-    // Close the database connection after the operation
     db.close();
   });

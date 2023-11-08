@@ -13,7 +13,7 @@ const createChallenge = async (req, res) => {
     challengeData.point_value = Number(challengeData.point_value);
     // Handle media file if uploaded
     if (req.file) {
-      const networkIP = '192.168.1.115'; // Replace with your actual server IP
+      const networkIP = '192.168.1.115'; 
 
       // Set the media field to be a string containing the URL to the media
       challengeData.media = `${req.protocol}://${networkIP}:9001/img/${req.file.filename}`;
