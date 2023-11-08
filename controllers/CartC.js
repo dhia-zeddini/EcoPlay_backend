@@ -64,15 +64,15 @@ export { createCart, getCartById, updateCart, deleteCart, addToCart, removeFromC
 
 // controllers/cartController.mjs
 
-// Add a new cart
+// Add a new
 async function addCart(req, res) {
     try {
-        var { userId, totalC } = req.body;
+        var { userId, totalC ,products} = req.body;
 
         // Create a new cart
         var newCart = new cartM({
             // User: userId, // You should get the user ID from your authentication system
-            // products: [], // Initialize the products array as empty
+             products: [], // Initialize the products array as empty
             totalC: totalC || 0, // Set an initial total or set to 0
         });
 
@@ -86,8 +86,45 @@ async function addCart(req, res) {
         res.status(500).json('An error has occurred');
     }
 }
+async function getPById(req, res) {
+  try {
+    const cartId = req.body.cartId;
+    const cart = await cartM.findById(cartId).populate('product');
 
+    // Assuming 'product' is correctly set up in your Mongoose schema to reference products
+    const products = cart.product;  // This will give you the array of populated products
 
+    // Return just the list of products for this cart
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: "An error has occurred!" });
+  }
+}
+
+/*
+async function getPById(req, res) {
+  try {
+    const cartId = req.body.cartId;
+    const cart = await cartM.findById(cartId);
+    const listC = await cartM.find().populate('product')
+
+    res.json({
+      listC
+    });
+  } catch (error) {
+    res.status(500).json("An error has occurred!");
+  }
+}
+*/
+async function getAllC(req, res) {
+  try {
+    const listC = await cartM.find().populate('product');
+    res.status(200).json(listC);
+  } catch (error) {
+    console.error(error); // Log the error to the console for debugging
+    res.status(500).json({ message: "An error has occurred!", error: error.message });
+  }
+}
 
 
 
@@ -145,4 +182,4 @@ async function removeProductToCart (req, res)  {
 };
 
 
-export { addCart, addProductToCart ,removeProductToCart};
+export { addCart, addProductToCart ,removeProductToCart,getAllC,getPById};

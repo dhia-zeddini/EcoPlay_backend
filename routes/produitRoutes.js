@@ -1,8 +1,5 @@
 import express from 'express';
-import { body } from 'express-validator'; // Import the 'body' object
-
-
-import { Router } from 'express';
+// import multer from '../utils/multer.js';
 import {
   addP,
   getPById,
@@ -10,10 +7,25 @@ import {
   updateP,
   deleteP,
 } from '../controllers/ProduitC.js';
-const router = Router();
+import multer from 'multer';
+
+const router = express.Router();
+
+
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "./public/images/product"), // Define where to store files
+  filename: (req, file, cb) => {
+    cb(null, req.body["nameP"] + Date.now() + ".jpeg");
+  },
+});
+const upload = multer({
+  storage: storage,
+});
 
 // Create a new producSt
-router.post('/add', addP);
+router.post('/add', upload.single("image"), addP);
 
 // Get a product by ID
 router.get('/', getPById);

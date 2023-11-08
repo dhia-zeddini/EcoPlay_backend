@@ -1,7 +1,6 @@
 import { response } from "express";
 import ProductM from "../models/ProductM.js"; // Assuming .mjs extension for ESM
 import dotenv from 'dotenv';
-import { validationResult } from 'express-validator';
 
 
 dotenv.config();
@@ -36,25 +35,42 @@ async function getAllP(req, res ) {
   //   Add Product
 
   async function addP(req, res) {
+    console.log(req.file);
     try {
+      // Initialize newProduct with data from the request body
       var newProduct = {
         nameP: req.body.nameP,
         descriptionP: req.body.descriptionP,
-        image:req.body.image,
-        priceP: req.body.priceP,
+        priceP: Number(req.body.priceP), // Convert priceP from string to Number if necessary
         typeP: req.body.typeP,
-
-    }
-    var product = new ProductM(newProduct);
-    await product.save();
+      };
+  
+      // Handle image file if uploaded
+      if (req.file) {
+        const networkIP = '192.168.111.207'; // Replace with your actual server IP or hostname
+  
+        // Set the image field to be a string containing the URL to the image
+        // Adjust the port (9001) and path ('/img/') if different in your setup
+        newProduct.image = req.file.filename;
+      } else {
+        newProduct.image = ''; // If no file uploaded, default to an empty string
+      }
+  
+      // Create a new product using the ProductM model
+      var product = new ProductM(newProduct);
+      await product.save(); // Save the new product to the database
+  
+      // Respond with a status code of 201 and the new product information
       res.status(201).json({
         message: 'Product added successfully',
         product: product,
       });
     } catch (error) {
-      res.status(500).json("An error has occurred!");
+      console.error(error); // Log the error for server-side debugging
+      res.status(500).json({ error: 'An error has occurred!' }); // Send a 500 Internal Server Error response
     }
   }
+  
 
 
 
