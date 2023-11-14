@@ -97,7 +97,7 @@ const deleteChallenge = async (req, res) => {
 
 const addParticipant = async (req, res) => {
   const challengeId = req.params.id;
-  const userId = req.user.id; // Assuming you have the user's ID in the request (e.g., from the authentication middleware).
+  const userId = req.body.userId; // Get the user ID from the request body
 
   try {
     const challenge = await ChallengeM.findById(challengeId);
@@ -114,41 +114,106 @@ const addParticipant = async (req, res) => {
 
     res.status(200).json({ message: 'User joined the challenge successfully' });
   } catch (error) {
+    console.error(error); // Log the error so you can see it in your server logs.
     res.status(500).json({ error: 'Failed to add a participant to the challenge' });
   }
 };
 
 
 // Add a comment to a challenge
+// Add a comment to a challenge
 const addComment = async (req, res) => {
   const challengeId = req.params.id;
-  const userId = req.body.userId;
-  const commentData = req.body.comment;
+  const { userId, text } = req.body; // Assuming text is part of the body directly
+
   try {
-    // Implement logic to add a comment to a challenge
+    const challenge = await ChallengeM.findById(challengeId);
+    if (!challenge) {
+      return res.status(404).json({ error: 'Challenge not found' });
+    }
+
+    const newComment = {
+      user: userId,
+      text: text,
+      // Initialize rating with a default value or an empty array
+      ratings: []
+    };
+
+    challenge.comments.push(newComment);
+    await challenge.save();
+
+    res.status(201).json(newComment);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Failed to add a comment to the challenge' });
   }
 };
 
+
 // Add a rating to a challenge
+// Add a rating to a challenge comment
 const addRating = async (req, res) => {
   const challengeId = req.params.id;
-  const userId = req.body.userId;
-  const ratingValue = req.body.rating;
+  const commentId = req.params.commentId; // Assuming you pass the comment ID in the URL
+  const { userId, rating } = req.body;
+
   try {
+    const challenge = await ChallengeM.findById(challengeId);
+    if (!challenge) {
+      return res.status(404).json({ error: 'Challenge not found' });
+    }
+
+    const comment = challenge.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    // Assuming you want to keep an array of ratings for each comment
+    comment.ratings.push({ user: userId, rating: rating });
+    await challenge.save();
+
+    res.status(200).json({ message: 'Rating added successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to add a rating to the challenge' });
+    console.error(error);
+    res.status(500).json({ error: 'Failed to add a rating to the comment' });
   }
 };
 
+
 const getLeaderboard = async (req, res) => {
   const challengeId = req.params.id;
+
   try {
+    const challenge = await ChallengeM.findById(challengeId);
+    if (!challenge) {
+      return res.status(404).json({ error: 'Challenge not found' });
+    }
+
+    // Assuming each comment has an array of ratings
+    // and each rating has a 'value' field.
+    const leaderboard = challenge.comments
+      .map(comment => {
+        // Calculate the average rating for each comment
+        const averageRating = comment.ratings.reduce((acc, rating) => acc + rating.value, 0) / comment.ratings.length;
+        return {
+          user: comment.user,
+          comment: comment.text,
+          averageRating: averageRating,
+          totalRatings: comment.ratings.length
+        };
+      })
+      // Filter out comments with no ratings
+      .filter(comment => comment.totalRatings > 0)
+      // Sort by average rating in descending order
+      .sort((a, b) => b.averageRating - a.averageRating);
+
+    res.status(200).json(leaderboard);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Failed to retrieve the leaderboard' });
   }
 };
+
 
 export default {
   createChallenge,
