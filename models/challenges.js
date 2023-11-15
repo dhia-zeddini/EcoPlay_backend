@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import commentSchema from "../models/comment.js" // This should be the schema, not the model
 import db from "../config/DBConnection.js";
 const { Schema } = mongoose;
 
@@ -39,17 +40,9 @@ const challengeSchema = new mongoose.Schema({
     type: String,
     default: "1699199236672-EveryPlate.jpeg"
   },  
+  comments: [commentSchema],
+
   
-  comments: [
-    {
-      user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User', 
-      },
-      text: String,
-      rating: Number,
-    },
-  ],
   leaderboard: [
     {
       user: {

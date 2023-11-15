@@ -1,17 +1,20 @@
 import express from 'express';
 import ChallengeM from "../models/challenges.js";
+import moment from 'moment';
+import fetch from 'node-fetch';
+
+
+
+
 
 // Create a new challenge
 // Create a new challenge
 const createChallenge = async (req, res) => {
   try {
     const challengeData = req.body;
-    // Convert start_date and end_date from string to Date objects
-    challengeData.start_date = new Date(challengeData.start_date);
-    challengeData.end_date = new Date(challengeData.end_date);
-    // Convert point_value from string to Number
+    challengeData.start_date = moment(challengeData.start_date, 'DD-MM-YYYY').toDate();
+    challengeData.end_date = moment(challengeData.end_date, 'DD-MM-YYYY').toDate();
     challengeData.point_value = Number(challengeData.point_value);
-    // Handle media file if uploaded
     if (req.file) {
       const networkIP = '192.168.1.115'; 
 
@@ -32,6 +35,37 @@ const createChallenge = async (req, res) => {
     res.status(500).json({ error: 'Challenge creation failed' }); // Send a 500 Internal Server Error response
   }
 };
+
+
+const deleteComment = async (req, res) => {
+  try {
+    const { challengeId, commentId } = req.params;
+
+    // Find the challenge by ID
+    const challenge = await ChallengeM.findById(challengeId);
+    if (!challenge) {
+      return res.status(404).json({ error: 'Challenge not found' });
+    }
+
+    // Find the index of the comment to delete
+    const commentIndex = challenge.comments.findIndex(c => c._id.toString() === commentId);
+    if (commentIndex === -1) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    // Remove the comment from the array
+    challenge.comments.splice(commentIndex, 1);
+
+    // Save the challenge with the updated comments array
+    await challenge.save();
+
+    res.status(200).json({ message: 'Comment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    res.status(500).json({ error: 'Failed to delete the comment' });
+  }
+};
+
 
 
 
@@ -120,11 +154,50 @@ const addParticipant = async (req, res) => {
 };
 
 
-// Add a comment to a challenge
-// Add a comment to a challenge
+async function moderateContent(content) {
+  const apiUser = '1347153318';
+  const apiSecret = 'jjSmWzGRPguD7z4wSNZBXmyi9r';
+  const formBody = new URLSearchParams();
+  formBody.append('api_user', apiUser);
+  formBody.append('api_secret', apiSecret);
+  formBody.append('text', content);
+  formBody.append('mode', 'rules');
+  formBody.append('lang', 'en,fr,es'); // Assuming you want to check for these languages
+
+  const response = await fetch('https://api.sightengine.com/1.0/text/check.json', {
+    method: 'POST',
+    body: formBody
+  });
+
+  const result = await response.json();
+
+  // Log the response for debugging
+  console.log('Moderation result:', result);
+
+  // Check the API call status and handle errors
+  if (result.status === 'failure') {
+    throw new Error(`API call failed: ${result.error.message}`);
+  }
+
+  if (result.profanity && result.profanity.matches && result.profanity.matches.length > 0) {
+    throw new Error('Content is not appropriate due to profanity');
+  }
+
+  if (result.personal && result.personal.matches && result.personal.matches.length > 0) {
+    throw new Error('Content is not appropriate due to personal information');
+  }
+
+  return result;
+}
+
+
+
+
+
 const addComment = async (req, res) => {
   const challengeId = req.params.id;
-  const { userId, text } = req.body; // Assuming text is part of the body directly
+  const { userId, title, description } = req.body;
+  const image = req.file ? req.file.filename : '';
 
   try {
     const challenge = await ChallengeM.findById(challengeId);
@@ -132,22 +205,39 @@ const addComment = async (req, res) => {
       return res.status(404).json({ error: 'Challenge not found' });
     }
 
+    // Now moderate the title and description of the comment
+    await Promise.all([
+      moderateContent(title),
+      moderateContent(description),
+    ]);
+
+    // If moderation is successful, create and save the new comment
     const newComment = {
       user: userId,
-      text: text,
-      // Initialize rating with a default value or an empty array
-      ratings: []
+      title: title,
+      description: description,
+      image: image,
     };
 
     challenge.comments.push(newComment);
     await challenge.save();
+    res.status(201).json({ message: 'Comment added successfully', comment: newComment });
 
-    res.status(201).json(newComment);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to add a comment to the challenge' });
+    console.error('Error adding comment:', error);
+    if (error.message.includes('Content is not appropriate')) {
+      return res.status(400).json({ error: 'Your comment contains inappropriate content.' });
+    }
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: 'Validation Error', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to add a comment to the challenge', message: error.message });
   }
 };
+
+
+
+
 
 
 // Add a rating to a challenge
@@ -223,6 +313,7 @@ export default {
   deleteChallenge,
   addParticipant,
   addComment,
+  deleteComment,
   addRating,
   getLeaderboard,
 };
