@@ -1,5 +1,6 @@
 import Question from '../models/Question.js';
 import dotenv from 'dotenv';
+import Quiz from '../models/Quiz.js';
 dotenv.config();
 
 const createQuestion = async (req, res) => {
@@ -24,24 +25,18 @@ const createQuestion = async (req, res) => {
     }
   };
   
-
-const getQuestionById = async (req, res) => {
-  try {
-    const questionId = req.params.questionId;
-    const question = await Question.findById(questionId);
-
-    if (question) {
+  async function getQuestionById(req, res) {
+    try {
+      const questionId = req.body.questionId;
+      const question= await Quiz.findById( questionId);
       res.json({
         question,
       });
-    } else {
-      res.status(404).json({ message: 'Question not found' });
+    } catch (error) {
+      res.status(500).json("An error has occurred!");
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'An error occurred while fetching the question' });
   }
-};
+  
 
 const updateQuestion = async (req, res) => {
   try {

@@ -8,17 +8,19 @@ const storage = multer.diskStorage({
   destination: './uploads',
   filename: (req, file, cb) => {
     let date = Date.now();
-    let fl = date + '-' + file.mimetype.split('/')[1];
+    let fl = date + '.jpeg';
     cb(null, fl);
   },
 });
 
 const upload = multer({ storage: storage });
 // Create a new quiz
-router.get('/:quizId', QuizController.getQuizById);
+router.get('/get', QuizController.getQuizById);
+router.get('/all', QuizController.getAllQuizzes);
+
 router.post('/create', upload.single('image'), QuizController.createQuiz);
 router.put('/:quizId', QuizController.updateQuiz);
-router.delete('/:quizId', QuizController.deleteQuiz);
+router.delete('/rm', QuizController.deleteQuiz);
 
 export default router;
 

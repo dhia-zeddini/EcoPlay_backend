@@ -9,7 +9,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express()
 const port = process.env.PORT || 9090;
-
 app.get("/", (req, res) => {
   res.send("hello");
 });
@@ -21,10 +20,6 @@ app.use('/quizzes', quizRoutes);
 app.use('/Question', questionnRoutes); 
 
 
-app.use((req, res, next) => {
-  console.log('Request URL:', req.originalUrl);
-  next();
-});
 
 // Serve static files from the "public" folder
 app.get('/img/:imageName', (req, res) => {

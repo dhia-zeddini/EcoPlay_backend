@@ -4,7 +4,19 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const createQuiz = async (req, res) => {
+// Function to get all quizzes
+async function getAllQuizzes(req, res) {
+  try {
+    const quizzes = await Quiz.find();
+    res.status(200).json(quizzes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error fetching quizzes' });
+  }
+}
+
+// Function to create a quiz
+async function createQuiz(req, res) {
   try {
     const newQuiz = new Quiz({
       title: req.body.title,
@@ -12,97 +24,79 @@ const createQuiz = async (req, res) => {
       questions: [], // Replace with actual ObjectIds
     });
 
-    await newQuiz.save(); // Save the new quiz to the database
+    await newQuiz.save();
 
-    res.status(201).json(newQuiz);
+    // Customize the response data as needed
+    const responseData = {
+      quizId: newQuiz._id,
+      title: newQuiz.title,
+      imageUrl: newQuiz.image,
+    };
+
+    res.status(201).json(responseData);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Quiz creation failed' });
   }
-};
-
+}
 
 // Retrieve a specified quiz by ID
-const getQuizById = async (req, res) => {
-  const quizId = req.params.id;
+async function getQuizById(req, res) {
   try {
+    const quizId = req.body.quizId;
     const quiz = await Quiz.findById(quizId);
-    if (!quiz) {
-      return res.status(404).json({ error: 'Quiz not found' });
-    }
-    res.status(200).json(quiz);
+    res.json({
+      quiz,
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve quiz' });
+    res.status(500).json("An error has occurred!");
   }
-};
-
-// List all quizzes
-const listQuizzes = async (req, res) => {
-  try {
-    const quizzes = await Quiz.find();
-    res.status(200).json(quizzes);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve quizzes' });
-  }
-};
+}
 
 // Update a quiz by ID
-const updateQuiz = async (req, res) => {
-  const quizId = req.params.id;
-  const updatedData = req.body;
+async function updateQuiz(req, res) {
   try {
+    const quizId = req.body.quizId;
+    const updatedData = req.body;
+
     const updatedQuiz = await Quiz.findByIdAndUpdate(quizId, updatedData, { new: true });
-    if (!updatedQuiz) {
-      return res.status(404).json({ error: 'Quiz not found' });
+
+    if (updatedQuiz) {
+      res.status(200).json({
+        message: 'Quiz updated successfully',
+        quiz: updatedQuiz,
+      });
+    } else {
+      res.status(404).json({ message: 'Quiz not found' });
     }
-    res.status(200).json(updatedQuiz);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update quiz' });
+    res.status(500).json("An error has occurred!");
   }
-};
+}
 
 // Delete a quiz by ID
-const deleteQuiz = async (req, res) => {
-  const quizId = req.params.id;
+async function deleteQuiz(req, res) {
   try {
+    const quizId = req.body.quizId;
+
     const deletedQuiz = await Quiz.findByIdAndDelete(quizId);
-    if (!deletedQuiz) {
-      return res.status(404).json({ error: 'Quiz not found' });
+
+    if (deletedQuiz) {
+      res.status(200).json({
+        message: 'Quiz deleted successfully',
+      });
+    } else {
+      res.status(404).json({ message: 'Quiz not found' });
     }
-    res.status(204).send();
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to delete quiz' });
+    res.status(500).json("An error has occurred!");
   }
-};
-
-// Add points to a quiz
-const addPointsToQuiz = async (req, res) => {
-  const quizId = req.params.id;
-  const { points } = req.body;
-  try {
-    const quiz = await Quiz.findById(quizId);
-    if (!quiz) {
-      return res.status(404).json({ error: 'Quiz not found' });
-    }
-
-    // Assuming there is a points field in the Quiz model
-    quiz.points += points;
-    
-    await quiz.save();
-
-    res.status(200).json({ message: 'Points added to the quiz successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to add points to the quiz' });
-  }
-};
+}
 
 export default {
+  getAllQuizzes,
   createQuiz,
   getQuizById,
-  listQuizzes,
   updateQuiz,
   deleteQuiz,
-  addPointsToQuiz,
 };
