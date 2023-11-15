@@ -1,7 +1,6 @@
-const UserM = require("../models/UserM");
+import UserM from "../models/UserM.js";
 
-exports.updateUser = async (req, res) => {
-  // console.log(req);
+const updateUser = async (req, res) => {
   try {
     const {
       firstName,
@@ -38,13 +37,13 @@ exports.updateUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-exports.updateAccount = async (req, res) => {
-  // console.log(req);
+
+const updateAccount = async (req, res) => {
+  console.log(req.body);
   try {
     const {
       firstName,
       lastName,
-      userName,
       email,
       phoneNumber,
       avatar,
@@ -53,38 +52,45 @@ exports.updateAccount = async (req, res) => {
     const newUser = {
       firstName,
       lastName,
-      userName,
       email,
       phoneNumber,
       avatar,
-      
     };
 
     await UserM.findByIdAndUpdate(req.user._id, newUser);
 
     res.status(200).json({ message: "Account updated successfully" });
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    await UserM.findByIdAndDelete(req.user._id);
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getUser = async (req, res) => {
+  console.log("api profile");
+  try {
+    const user = await UserM.findById(req.user._id);
+    if (user) {
+    res.status(200).json(user);
+      
+    } else {
+    res.status(404).json(user);
+      
+    }
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-exports.deleteUser = async (req, res) => {
-  try {
-    await UserM.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-exports.getUser = async (req, res) => {
-  try {
-    const user = await UserM.findById(req.user._id);
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-exports.getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
     const allUsers = await UserM.find();
     res.status(200).json(allUsers);
@@ -93,9 +99,4 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
+export default { updateUser, updateAccount, deleteUser, getUser, getAllUsers };

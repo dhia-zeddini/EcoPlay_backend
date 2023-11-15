@@ -2,6 +2,8 @@ import UserM from "../models/UserM.js"; // Assuming .mjs extension for ESM
 import nodemailer from "nodemailer";
 import UserService from "../services/UserS.js";
 // import { html } from "../utils/mailTemplate.js";
+
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -17,6 +19,8 @@ const transporter = nodemailer.createTransport({
 });
 
  async function register(req, res, next) {
+  console.log("api invocked");
+
   console.log(req.body);
   try {
     const {
@@ -26,6 +30,7 @@ const transporter = nodemailer.createTransport({
       phoneNumber,
       password,
     } = req.body;
+  
     const succRes = await UserService.registerUser(
       firstName,
       lastName,
@@ -40,37 +45,42 @@ const transporter = nodemailer.createTransport({
       console.log("Error", error);
       res.status(403).json({
         status: false,
-        error: Object.keys(error.keyPattern)[0] + " already used",
+        success: Object.keys(error.keyPattern)[0] + " already used",
       });
     } else {
       console.log("err", error);
-      res.status(500).json({ status: false, error: "Internal Server Error" });
+      res.status(500).json({ status: false, success: "Internal Server Error" });
     }
   }
 }
 
- async function login(req, res, next) {
+async function login(req, res, next) {
+  console.log("api invocked");
+  console.log(req.body);
   try {
-    const { phoneNumber, password } = req.body;
-    const user = await UserService.checkuser(phoneNumber);
+    const { data, password } = req.body;
+    const user = await UserService.checkuser(data);
+    console.log(data);
     if (!user) {
-      res.status(401).json("User does not exist");
+      res.status(404).json({ status: false, token: "", error: "User does not exist" });
     }
     const isMatch = await UserService.comparePassword(password, user.password);
     if (isMatch === false) {
-      res.status(401).json("Invalid password");
+      res.status(401).json({ status: false, token: "", error: "Invalid password" });
     }
 
     const tokenData = { _id: user._id, phoneNumber: user.phoneNumber };
     const token = await UserService.generateToken(tokenData, "secretKey", "5h");
-    res.status(200).json({ status: true, token: token });
+    res.status(200).json({ status: true, token: token, error: "" });
   } catch (error) {
     next(error);
     res.status(500);
   }
 }
 
+
  async function forgetPwd(req, res) {
+  console.log("forget");
   try {
     const random = await UserService.generateCode();
     const user = await UserM.findOne({
@@ -100,19 +110,19 @@ const transporter = nodemailer.createTransport({
       );
       await transporter
         .sendMail({
-          from: '"HeyU 👻" <heyU@example.com>',
+          from: '"EcoPlay 👻" <ecoPlay@example.com>',
           to: user.email,
           subject: "Reset your password",
-          html: `<h1><strong>Hi! dhia</strong></h1><h3>We have received a request to reset your password.</h3>Verification code:${random}`,
+          html: `<h1><strong>Hi! ${user.firstName}</strong></h1><h3>We have received a request to reset your password.</h3>Verification code:${random}`,
         })
         .then(() => {
-          console.log("Message sent: %s");
+          console.log(`Message sent:${token}`);
           //console.log("html", html);
         })
         .catch((error) => {
           console.log(error);
         });
-
+      // console.log(`Message sent:${token}`);
       res.status(200).json({ status: true, token: token });
     }
   } catch (error) {
@@ -122,7 +132,8 @@ const transporter = nodemailer.createTransport({
 async function otp(req,res){
 
   const code = req.user.code;
-    const paramCode = req.body.code;
+    const paramCode = req.body.data;
+    console.log(paramCode);
     if (code.trim() === paramCode.trim()) {
       const tokenData = {
         _id: req.user._id,

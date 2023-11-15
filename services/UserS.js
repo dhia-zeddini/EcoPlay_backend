@@ -52,7 +52,7 @@ export async function generateCode() {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let code = "";
-  const codeLength = 6;
+  const codeLength = 4;
 
   for (let i = 0; i < codeLength; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
