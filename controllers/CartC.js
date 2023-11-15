@@ -1,68 +1,9 @@
 import cartM from "../models/CartM.js";
 import dotenv from 'dotenv';
+import stripeModule from 'stripe';
+const secretKey = process.env.KEYSTRIPE;
+const stripe = stripeModule(process.env.KEYSTRIPE);
 import ProduitM from "../models/ProductM.js";
-
-/*
-// Add a product to a cart
-async function addToCart(req, res) {
-  try {
-    const cartId = req.body.cartId;
-    const productId = req.body.productId;
-
-    // Check if the cart and product exist
-    const cart = await CartM.findById(cartId);
-    const product = await ProductM.findById(productId);
-
-    if (!cart || !product) {
-      res.status(404).json({ message: 'Cart or product not found' });
-      return;
-    }
-
-    // Set the product in the cart's 'product' attribute
-    cart.product = product;
-    await cart.save();
-
-    res.status(200).json({
-      message: 'Product added to cart successfully',
-      cart,
-    });
-  } catch (error) {
-    res.status(500).json('An error has occurred');
-  }
-}
-
-// Remove a product from a cart
-async function removeFromCart(req, res) {
-  try {
-    const cartId = req.params.cartId;
-
-    // Check if the cart exists
-    const cart = await CartM.findById(cartId);
-
-    if (!cart) {
-      res.status(404).json({ message: 'Cart not found' });
-      return;
-    }
-
-    // Remove the product from the cart's 'product' attribute
-    cart.product = null;
-    await cart.save();
-
-    res.status(200).json({
-      message: 'Product removed from cart successfully',
-      cart,
-    });
-  } catch (error) {
-    res.status(500).json('An error has occurred');
-  }
-}
-
-export { createCart, getCartById, updateCart, deleteCart, addToCart, removeFromCart };*/
-
-
-
-
-// controllers/cartController.mjs
 
 // Add a new
 async function addCart(req, res) {
@@ -86,6 +27,24 @@ async function addCart(req, res) {
         res.status(500).json('An error has occurred');
     }
 }
+
+async function pay (req, res) {
+  try {
+    // Gérez le paiement ici en utilisant la bibliothèque de la passerelle choisie
+    // Exemple avec Stripe :
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: 1000, // Montant en centimes
+      currency: 'eur',
+    });
+
+    res.json({ client_secret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error('Erreur lors du paiement :', error.message);
+    res.status(500).json({ error: 'Erreur lors du paiement' });
+  }
+}
+
+
 async function getPById(req, res) {
   try {
     const cartId = req.body.cartId;
@@ -101,21 +60,7 @@ async function getPById(req, res) {
   }
 }
 
-/*
-async function getPById(req, res) {
-  try {
-    const cartId = req.body.cartId;
-    const cart = await cartM.findById(cartId);
-    const listC = await cartM.find().populate('product')
 
-    res.json({
-      listC
-    });
-  } catch (error) {
-    res.status(500).json("An error has occurred!");
-  }
-}
-*/
 async function getAllC(req, res) {
   try {
     const listC = await cartM.find().populate('product');
@@ -156,7 +101,7 @@ async function addProductToCart(req, res) {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-};
+}
 
 
 async function removeProductToCart (req, res)  {
@@ -182,4 +127,38 @@ async function removeProductToCart (req, res)  {
 };
 
 
-export { addCart, addProductToCart ,removeProductToCart,getAllC,getPById};
+
+//////////////////////////////////////////////////////////////////::
+async function calculateCartTotal(req, res) {
+  try {
+    const cartId = req.body.cartId;
+    const cart = await cartM.findById(cartId).populate('product');  // Make sure 'products' is the correct path
+
+    if (!cart) {
+      res.status(404).json({ message: 'Cart not found' });
+      return;
+    }
+
+    // Calculate the total by summing the price of each product
+    let totalC = 0;
+    for (let product of cart.product) {
+      totalC += parseFloat (product.priceP);  // Assuming the product model has a 'price' field
+    }
+
+    // Update the totalC in the cart
+    cart.totalC = totalC;
+    await cart.save();
+
+    res.status(200).json({
+      message: 'Total calculated successfully',
+      total: totalC.toFixed(2), // Converts number to string with 2 decimal places
+      cart
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'An error has occurred', error: error.message });
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+export { addCart, addProductToCart ,removeProductToCart,getAllC,getPById,calculateCartTotal,pay};

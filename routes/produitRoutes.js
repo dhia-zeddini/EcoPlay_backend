@@ -1,4 +1,6 @@
 import express from 'express';
+import multer from 'multer';
+
 // import multer from '../utils/multer.js';
 import {
   addP,
@@ -7,19 +9,14 @@ import {
   updateP,
   deleteP,
 } from '../controllers/ProduitC.js';
-import multer from 'multer';
 
 const router = express.Router();
-
-
-
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "./public/images/product"), // Define where to store files
   filename: (req, file, cb) => {
     cb(null, req.body["nameP"] + Date.now() + ".jpeg");
   },
-});
+});  
 const upload = multer({
   storage: storage,
 });
@@ -36,7 +33,7 @@ router.get('/getall', getAllP);
 // Update a product by ID
 router.put('/', updateP);
 
-// Delete a product by ID
+// Delete a product by IDa
 router.delete('/', deleteP);
 
 export default router;

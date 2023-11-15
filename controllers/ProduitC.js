@@ -47,7 +47,7 @@ async function getAllP(req, res ) {
   
       // Handle image file if uploaded
       if (req.file) {
-        const networkIP = '192.168.111.207'; // Replace with your actual server IP or hostname
+        const networkIP = '192.168.99.207'; // Replace with your actual server IP or hostname
   
         // Set the image field to be a string containing the URL to the image
         // Adjust the port (9001) and path ('/img/') if different in your setup
