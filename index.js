@@ -1,11 +1,26 @@
-import db from './config/DBConnection.js'
-import  express from 'express';
-const app =express()
-const port=process.env.PORT;
+import dotenv from "dotenv";
+import express from "express";
+import bodyParser from "body-parser";
+import authRoute from "./routes/authR.js"; // Assuming .mjs extension for ESM
+import userRoute from "./routes/UserR.js"; // Assuming .mjs extension for ESM
+// Assuming .mjs extension for ESM
+
+dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 9090;
+app.get("/", (req, res) => {
+  res.send("hello");
+});
+app.use(bodyParser.json());
+app.use("/", authRoute);
+app.use("/user", userRoute);
+
 
 app.get("/", (req, res) => {
   res.send("hello");
 });
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
-  });
+
+const server = app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}/`);
+});
+
