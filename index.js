@@ -18,16 +18,15 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', challengesRoute); 
 
-// This middleware just logs the request URL and does nothing else, this is fine
 app.use((req, res, next) => {
   console.log('Request URL:', req.originalUrl);
   next();
 });
 
-// Serve static files from the "public" folder
 app.get('/img/:imageName', (req, res) => {
   const imagePath = path.join(__dirname, 'public', 'img', req.params.imageName);
   res.sendFile(imagePath, err => {
+    
     if (err) {
       console.log(err);
       res.status(404).send('Image not found');
