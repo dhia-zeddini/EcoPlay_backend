@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import db from "../config/DBConnection.js"; // Assuming .mjs extension for ESM
-const { Schema } = mongoose;
+const { Schema ,model} = mongoose;
 
 const produitSchema = new Schema(
   {
@@ -31,7 +31,7 @@ const produitSchema = new Schema(
     timestamps: true,
   }
 );
-const ProduitM=db.model('Produit', produitSchema);
+const ProduitM=model('Produit', produitSchema);
 export default ProduitM;
 
 

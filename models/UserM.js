@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import db from "../config/DBConnection.js"; // Assuming .mjs extension for ESM
 import bcrypt from "bcrypt";
-const { Schema } = mongoose;
+const { Schema,model } = mongoose;
 
 const userSchema = new Schema(
     {
@@ -83,5 +83,5 @@ const userSchema = new Schema(
     }
   });
   
-  const UserM = db.model("User", userSchema);
+  const UserM = model("User", userSchema);
   export default UserM;

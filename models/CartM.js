@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import db from "../config/DBConnection.js"; // Assuming .mjs extension for ESM
-const { Schema } = mongoose;
+const { Schema,model } = mongoose;
 
 const cartSchema = new Schema(
   {
@@ -24,6 +24,6 @@ const cartSchema = new Schema(
       }
     
     );
-    const cartM=db.model('Cart', cartSchema);
+    const cartM=model('Cart', cartSchema);
     export default cartM;
     
