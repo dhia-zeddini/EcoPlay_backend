@@ -4,6 +4,11 @@ import moment from 'moment';
 import fetch from 'node-fetch';
 
 
+import dotenv from 'dotenv';
+dotenv.config();
+
+
+
 
 
 
@@ -17,22 +22,15 @@ const createChallenge = async (req, res) => {
     challengeData.point_value = Number(challengeData.point_value);
     if (req.file) {
       const networkIP = '192.168.1.115'; 
-
-      // Set the media field to be a string containing the URL to the media
       challengeData.media = `${req.protocol}://${networkIP}:9001/img/${req.file.filename}`;
     } else {
       challengeData.media = ''; // If no file uploaded, default to an empty string
     }
-    
-    // Here, ensure that participants is an array of ObjectId's
-    // If your frontend sends an array of participant IDs as strings, you would convert them like this:
-
-
     const newChallenge = await ChallengeM.create(challengeData);
     res.status(201).json(newChallenge);
   } catch (error) {
     console.error(error); // Log the error for server-side debugging
-    res.status(500).json({ error: 'Challenge creation failed' }); // Send a 500 Internal Server Error response
+    res.status(500).json({ error: 'Challenge creation failed' }); 
   }
 };
 
@@ -155,14 +153,14 @@ const addParticipant = async (req, res) => {
 
 
 async function moderateContent(content) {
-  const apiUser = '1347153318';
-  const apiSecret = 'jjSmWzGRPguD7z4wSNZBXmyi9r';
+  const apiUser = process.env.API_USER;
+  const apiSecret = process.env.API_SECRET;
   const formBody = new URLSearchParams();
   formBody.append('api_user', apiUser);
   formBody.append('api_secret', apiSecret);
   formBody.append('text', content);
   formBody.append('mode', 'rules');
-  formBody.append('lang', 'en,fr,es'); // Assuming you want to check for these languages
+  formBody.append('lang', 'en,fr,es'); 
 
   const response = await fetch('https://api.sightengine.com/1.0/text/check.json', {
     method: 'POST',
@@ -171,10 +169,8 @@ async function moderateContent(content) {
 
   const result = await response.json();
 
-  // Log the response for debugging
   console.log('Moderation result:', result);
 
-  // Check the API call status and handle errors
   if (result.status === 'failure') {
     throw new Error(`API call failed: ${result.error.message}`);
   }
@@ -205,13 +201,12 @@ const addComment = async (req, res) => {
       return res.status(404).json({ error: 'Challenge not found' });
     }
 
-    // Now moderate the title and description of the comment
     await Promise.all([
       moderateContent(title),
       moderateContent(description),
+      //moderateContent(image)
     ]);
 
-    // If moderation is successful, create and save the new comment
     const newComment = {
       user: userId,
       title: title,
@@ -236,12 +231,6 @@ const addComment = async (req, res) => {
 };
 
 
-
-
-
-
-// Add a rating to a challenge
-// Add a rating to a challenge comment
 const addRating = async (req, res) => {
   const challengeId = req.params.id;
   const commentId = req.params.commentId; // Assuming you pass the comment ID in the URL

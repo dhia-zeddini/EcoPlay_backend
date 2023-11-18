@@ -1,9 +1,9 @@
 import express from "express";
 import challengesController from "../controllers/challenges.js";
-import multer from '../utils/multer.js'; // Assuming this is your Multer configuration
-import { commentsUpload } from "../utils/commentsMulter.js"; // Adjust the import path as needed
-
+import { commentsUpload } from "../middlewares/commentsMulter.js"; 
 import ChallengeM from "../models/challenges.js";
+
+import multer from "../middlewares/multer.js";
 
 const router = express.Router();
 
@@ -23,8 +23,6 @@ router.post('/challenges/:id/leave', challengesController.addParticipant);
 
 router.post('/challenges/comments/:id/', commentsUpload, challengesController.addComment);
 
-// Assuming you have an Express server and a Challenge model
-// with a comments field that is an array of comment objects
 
 router.get('/challenges/comments/:id', async (req, res) => {
     try {

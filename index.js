@@ -34,6 +34,20 @@ app.get('/img/:imageName', (req, res) => {
   });
 });
 
+app.get('/images/challenges/:imageName', (req, res) => {
+  const imagePath = path.join(__dirname, 'public', 'images', 'challenges', req.params.imageName);
+  res.sendFile(imagePath, err => {
+    if (err) {
+      console.log(err);
+      res.status(404).send('Image not found');
+    }
+  });
+});
+
+
+app.use('/images/challenges', express.static(path.join(__dirname, 'public/images/challenges')));
+
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
 });

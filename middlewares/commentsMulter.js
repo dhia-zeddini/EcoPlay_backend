@@ -13,7 +13,7 @@ const MIME_TYPES = {
 const storage = diskStorage({
   destination: (req, file, callback) => {
     const __dirname = dirname(fileURLToPath(import.meta.url));
-    callback(null, join(__dirname, "../public/img")); 
+    callback(null, join(__dirname, "../public/images/challenges")); 
   },
   filename: (req, file, callback) => {
     const name = file.originalname.split(" ").join("_");
