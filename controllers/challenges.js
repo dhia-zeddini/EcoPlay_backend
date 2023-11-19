@@ -233,7 +233,7 @@ const addComment = async (req, res) => {
 
 const addRating = async (req, res) => {
   const challengeId = req.params.id;
-  const commentId = req.params.commentId; // Assuming you pass the comment ID in the URL
+  const commentId = req.params.commentId; 
   const { userId, rating } = req.body;
 
   try {
@@ -272,7 +272,6 @@ const getLeaderboard = async (req, res) => {
     // and each rating has a 'value' field.
     const leaderboard = challenge.comments
       .map(comment => {
-        // Calculate the average rating for each comment
         const averageRating = comment.ratings.reduce((acc, rating) => acc + rating.value, 0) / comment.ratings.length;
         return {
           user: comment.user,
