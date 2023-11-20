@@ -152,20 +152,19 @@ async function otp(req,res){
 }
  async function newPwd(req, res) {
   try {
-    if (req.body.newPwd !== req.body.confirmPwd) {
-      res.status(403).json("You have to confirm your password");
-    } else {
+   
       const user = await UserM.findOneAndUpdate(
         { _id: req.user._id },
-        { password: req.body.newPwd, forgetPwd: null },
+        { password: req.body.password, forgetPwd: null },
         { new: true }
       );
       if (!user) {
-        res.status(404).json("User not found");
+        res.status(404).json({ status: false, token: "", error: "User not found" });
       } else {
-        res.status(200).json("Password updated successfully");
+        console.log("ok");
+        res.status(200).json({ status: false, token: "Password updated successfully", error: "" });
       }
-    }
+    
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });

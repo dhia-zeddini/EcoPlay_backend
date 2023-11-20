@@ -45,6 +45,18 @@ const userSchema = new Schema(
         type: Number,
         default:1
       },
+      goldMedal: {
+        type: Number,
+        default:0
+      },
+      silverMedal: {
+        type: Number,
+        default:0
+      },
+      bronzeMedal: {
+        type: Number,
+        default:0
+      },
       etatDelete: {
         type: Boolean,
         default:false
