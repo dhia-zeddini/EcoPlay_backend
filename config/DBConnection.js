@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -11,11 +11,5 @@ const connection =mongoose.connect(MONGO_URL).then(()=>{
     console.log(err)
 
 })
-
-/* mongoose.createConnection(MONGO_URL).on('open', () => {
-    console.log("Mongo connected");
-}).on('error', () => {
-    console.log("Mongo connection error");
-});*/
 
 export default connection;

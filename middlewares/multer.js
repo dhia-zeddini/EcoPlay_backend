@@ -15,7 +15,7 @@ export default multer({
     // Configurer l'emplacement de stockage
     destination: (req, file, callback) => {
       const __dirname = dirname(fileURLToPath(import.meta.url)); // Récupérer le chemain du dossier courant
-      callback(null, join(__dirname, "../public/img")); // Indiquer l'emplacement de stockage
+      callback(null, join(__dirname, "../public/images/challenges")); // Indiquer l'emplacement de stockage
     },
     // Configurer le nom avec lequel le fichier va etre enregistrer
     filename: (req, file, callback) => {
@@ -24,10 +24,11 @@ export default multer({
       // Récupérer l'extension à utiliser pour le fichier
       const extension = MIME_TYPES[file.mimetype];
       //  Ajouter un timestamp Date.now() au nom de fichier
-      callback(null, name + Date.now() + "." + extension);
+      callback(null,  Date.now() + name);
     },
   }),
   // Taille max des images 10Mo
   limits: 10 * 1024 * 1024,
-}).single("image"); // 
+}).single("media"); // 
 
+//.array

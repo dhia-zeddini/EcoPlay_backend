@@ -25,47 +25,47 @@ router.post("/newPwd", verifyToken, authController.newPwd);
 
 /********************************** */
 
-passport.use(
-  new FacebookStrategy(
-    {
-      clientID: process.env.FACEBOOK_CLIENT_ID,
-      clientSecret: process.env.FACEBOOK_SECRET_KEY,
-      callbackURL: "http://localhost:9001/auth/facebook/callback",
-      profileFields: ["id", "displayName", "photos", "email"],
-    },
-    async function (accessToken, refreshToken, profile, cb) {
-      console.log(profile);
-      // const user = await User.findOne({
-      //   accountId: profile.id,
-      //   provider: 'facebook',
-      // });
-      // if (!user) {
-      //   console.log('Adding new facebook user to DB..');
-      //   const user = new User({
-      //     accountId: profile.id,
-      //     name: profile.displayName,
-      //     provider: profile.provider,
-      //   });
-      //   await user.save();
-      //   // console.log(user);
-      //   return cb(null, profile);
-      // } else {
-      //   console.log('Facebook User already exist in DB..');
-      //   // console.log(profile);
-      //   return cb(null, profile);
-      // }
-    }
-  )
-);
+// passport.use(
+//   new FacebookStrategy(
+//     {
+//       clientID: process.env.FACEBOOK_CLIENT_ID,
+//       clientSecret: process.env.FACEBOOK_SECRET_KEY,
+//       callbackURL: "http://localhost:9001/auth/facebook/callback",
+//       profileFields: ["id", "displayName", "photos", "email"],
+//     },
+//     async function (accessToken, refreshToken, profile, cb) {
+//       console.log(profile);
+//       // const user = await User.findOne({
+//       //   accountId: profile.id,
+//       //   provider: 'facebook',
+//       // });
+//       // if (!user) {
+//       //   console.log('Adding new facebook user to DB..');
+//       //   const user = new User({
+//       //     accountId: profile.id,
+//       //     name: profile.displayName,
+//       //     provider: profile.provider,
+//       //   });
+//       //   await user.save();
+//       //   // console.log(user);
+//       //   return cb(null, profile);
+//       // } else {
+//       //   console.log('Facebook User already exist in DB..');
+//       //   // console.log(profile);
+//       //   return cb(null, profile);
+//       // }
+//     }
+//   )
+// );
 
-router.get("/auth/facebook", passport.authenticate("facebook"));
+// router.get("/auth/facebook", passport.authenticate("facebook"));
 
-router.get(
-  "/auth/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/" }),
-  (req, res) => {
-    // Successful authentication, redirect or respond as needed
-    res.redirect("/");
-  }
-);
+// router.get(
+//   "/auth/facebook/callback",
+//   passport.authenticate("facebook", { failureRedirect: "/" }),
+//   (req, res) => {
+//     // Successful authentication, redirect or respond as needed
+//     res.redirect("/");
+//   }
+// );
 export default router;
