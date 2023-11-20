@@ -28,19 +28,21 @@ async function addCart(req, res) {
     }
 }
 
-async function pay (req, res) {
+async function pay(req, res) {
   try {
-    // Gérez le paiement ici en utilisant la bibliothèque de la passerelle choisie
-    // Exemple avec Stripe :
+    const { totalC } = req.body; // Get the total amount from the request body
+    console.log('Creating payment intent with amount:', totalC); // Log the amount for debugging
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1000, // Montant en centimes
-      currency: 'eur',
+      amount: totalC, // Use the passed total amount
+      currency: 'usd', // Assuming the currency is still euro
     });
-
-    res.json({ client_secret: paymentIntent.client_secret });
+    console.log('Payment intent created:', paymentIntent); // Log the successful creation
+    return res.json({ client_secret: paymentIntent.client_secret });
   } catch (error) {
-    console.error('Erreur lors du paiement :', error.message);
-    res.status(500).json({ error: 'Erreur lors du paiement' });
+    console.error('Error during payment:', error); // Log the full error
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'Erreur lors du paiement' });
+    }
   }
 }
 
@@ -71,38 +73,36 @@ async function getAllC(req, res) {
   }
 }
 
-
-
 async function addProductToCart(req, res) {
-    try {
-        const cartId = req.body.cartId;
-        const productId = req.body.productId;
-        const cart = await cartM.findById(cartId);
-        if (!cart) {
-            // throw new Error('User not found');
-            res.status(404).json({ message: "cart not found" });
-        }
+  try {
+      const cartId = req.body.cartId;
+      const productId = req.body.productId;
+      const cart = await cartM.findById(cartId);
+      if (!cart) {
+          return res.status(404).json({ message: "Cart not found" });
+      }
 
-        const product = await ProduitM.findById(productId);
+      const product = await ProduitM.findById(productId);
+      if (!product) {
+          return res.status(404).json({ message: "Product not found" });
+      } else {
+          // Check if the product is already in the cart
+          const productExistsInCart = cart.product.some(p => p._id.equals(productId));
 
-        if (!product) {
-            // throw new Error('Contact not found');
-            res.status(404).json({ message: "product not found" });
-        } else {
-            if (cart.product) {
-                cart.product.push(product);
-                await cart.save();
-            } else {
-                await cart.updateOne({ product: [cart] });
-            }
-        }
-
-        res.status(200).json({ message: "product added successfully" });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+          // If the product is not in the cart, add it
+          if (!productExistsInCart) {
+              cart.product.push(product);
+              await cart.save();
+              res.status(200).json({ message: "Product added successfully" });
+          } else {
+              // If the product is already in the cart, inform the user
+              res.status(409).json({ message: "Product already in cart" });
+          }
+      }
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
 }
-
 
 async function removeProductToCart (req, res)  {
   try {
