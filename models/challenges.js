@@ -41,7 +41,7 @@ const challengeSchema = new mongoose.Schema({
     default: "1699199236672-EveryPlate.jpeg"
   },  
   comments: [commentSchema],
-
+//////////////////////////
   
   leaderboard: [
     {
