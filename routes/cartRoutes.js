@@ -18,5 +18,5 @@ router.delete('/rmPtC',removeProductToCart);
 router.post('/get',getPById);
 router.get('/getall',getAllC);
 router.post('/total', calculateCartTotal);
-router.post('/paiement',pay);
+router.post('/pay',pay);
 export default router;
