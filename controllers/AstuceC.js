@@ -1,4 +1,4 @@
-import AstuceM from "./../models/astuceM.js"; // Assuming .mjs extension for ESM
+import AstuceM from "../models/astuceM.js"; // Assuming .mjs extension for ESM
 import dotenv from 'dotenv';
 import Response from "express"; 
 
