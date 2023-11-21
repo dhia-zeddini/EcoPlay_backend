@@ -58,6 +58,8 @@ app.get('/images/astuce/:imageName', (req, res) => {
   });
 });
 
+app.use('/images/astuce', express.static(path.join(__dirname, 'public/images/astuce')));
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
 });
