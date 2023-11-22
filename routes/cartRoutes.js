@@ -10,13 +10,17 @@ const stripe = stripeModule(process.env.KEYSTRIPE);
    
 import { getAllP } from '../controllers/ProduitC.js';
 const router = Router();
-
+import {
+  verifyForgetPwd,
+  verifyToken,
+  verifyAndAuth,
+} from "../middlewares/verifyToken.js";
 // Create a new producSt
-router.post('/add', addCart);
-router.put('/adPtC',addProductToCart);
-router.delete('/rmPtC',removeProductToCart);
-router.post('/get',getPById);
+router.post('/add', verifyToken,addCart);
+router.put('/adPtC',verifyToken,addProductToCart);
+router.delete('/rmPtC',verifyToken,removeProductToCart);
+router.post('/get',verifyToken,getPById);
 router.get('/getall',getAllC);
-router.post('/total', calculateCartTotal);
+router.post('/total', verifyToken,calculateCartTotal);
 router.post('/pay',pay);
 export default router;

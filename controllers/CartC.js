@@ -48,9 +48,10 @@ async function pay(req, res) {
 
 
 async function getPById(req, res) {
+  console.log("im in");
   try {
-    const cartId = req.body.cartId;
-    const cart = await cartM.findById(cartId).populate('product');
+    // const cartId = req.body.cartId;
+    const cart = await cartM.findOne({User:req.user}).populate('product');
 
     // Assuming 'product' is correctly set up in your Mongoose schema to reference products
     const products = cart.product;  // This will give you the array of populated products
@@ -75,9 +76,9 @@ async function getAllC(req, res) {
 
 async function addProductToCart(req, res) {
   try {
-      const cartId = req.body.cartId;
+      // const cartId = req.body.cartId;
       const productId = req.body.productId;
-      const cart = await cartM.findById(cartId);
+      const cart = await cartM.findOne({User:req.user});
       if (!cart) {
           return res.status(404).json({ message: "Cart not found" });
       }
@@ -106,9 +107,9 @@ async function addProductToCart(req, res) {
 
 async function removeProductToCart (req, res)  {
   try {
-    const cartId = req.body.cartId;
+    // const cartId = req.body.cartId;
     const productId = req.body.productId;
-    const cart = await cartM.findById(cartId);
+    const cart = await cartM.findOne({User:req.user});
     if (!cart) {
       // throw new Error('User not found');
       res.status(404).json({ message: "cart not found" });
@@ -131,8 +132,8 @@ async function removeProductToCart (req, res)  {
 //////////////////////////////////////////////////////////////////::
 async function calculateCartTotal(req, res) {
   try {
-    const cartId = req.body.cartId;
-    const cart = await cartM.findById(cartId).populate('product');  // Make sure 'products' is the correct path
+    // const cartId = req.body.cartId;
+    const cart = await cartM.findOne({User:req.user}).populate('product');  // Make sure 'products' is the correct path
 
     if (!cart) {
       res.status(404).json({ message: 'Cart not found' });

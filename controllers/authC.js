@@ -1,6 +1,8 @@
 import UserM from "../models/UserM.js"; // Assuming .mjs extension for ESM
 import nodemailer from "nodemailer";
 import UserService from "../services/UserS.js";
+import cartM from "../models/CartM.js";
+
 // import { html } from "../utils/mailTemplate.js";
 
 import twilio from "twilio"
@@ -43,7 +45,14 @@ const client = twilio(accountSid, authToken);
       password,
       req.file?.filename,
     );
-    res.json({ status: true, success: "User Registered" });
+    var newCart = new cartM({
+      User: succRes, 
+       products: [], 
+      totalC:  0, 
+  });
+
+  await newCart.save();
+    res.json({ status: true, success: "User Registered with cart" });
   } catch (error) {
     if (error.keyPattern) {
       console.log("Error", error);
