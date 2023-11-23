@@ -30,5 +30,4 @@ export default multer({
   // Taille max des images 10Mo
   limits: 10 * 1024 * 1024,
 }).single("image"); // 
-
-//.array
+z

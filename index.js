@@ -1,14 +1,18 @@
 import db from "./config/DBConnection.js"
 import express from "express"
-import questionnRoutes from'./routes/QuestionnRoutes.js'
-import quizRoutes from './routes/QuizRoutes.js'
+import categoryRoutes from './routes/CategoryRoutes.js'
+import questionStatsRoutes from './routes/QuestionStats.js'
+import resultatRoutes from './routes/ResultatRoute.js'
+import ResultatRoute from "./routes/ResultatRoute.js"
 import path from 'path';
 import { fileURLToPath } from 'url';
+import QuizResultRoute from "./routes/QuizResultRoute.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express()
 const port = process.env.PORT || 9090;
+
 app.get("/", (req, res) => {
   res.send("hello");
 });
@@ -16,8 +20,15 @@ app.get("/", (req, res) => {
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/quizzes', quizRoutes); 
-app.use('/Question', questionnRoutes); 
+app.use('/category', categoryRoutes); 
+
+app.use('/QuestionStats', questionStatsRoutes);
+app.use('/Resultat', resultatRoutes); 
+app.use('/Resultat', ResultatRoute); 
+app.use('/QuizR', QuizResultRoute); 
+
+
+
 
 
 
