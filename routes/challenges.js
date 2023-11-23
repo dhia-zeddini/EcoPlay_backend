@@ -2,7 +2,11 @@ import express from "express";
 import challengesController from "../controllers/challenges.js";
 import multer from '../middlewares/multer.js'; // Assuming this is your Multer configuration
 import { commentsUpload } from "../middlewares/commentsMulter.js"; // Adjust the import path as needed
-
+import {
+  verifyForgetPwd,
+  verifyToken,
+  verifyAndAuth,
+} from "../middlewares/verifyToken.js"; 
 import ChallengeM from "../models/challenges.js";
 
 const router = express.Router();
@@ -17,11 +21,11 @@ router.put('/challenges/:id', challengesController.updateChallenge);
 
 router.delete('/challenges/:id', challengesController.deleteChallenge);
 
-router.post('/challenges/:id/join', challengesController.addParticipant);
+router.post('/challenges/:id/join', verifyToken, challengesController.addParticipant);
 
-router.post('/challenges/:id/leave', challengesController.addParticipant);
+//router.post('/challenges/:id/leave', verifyToken, challengesController.addParticipant);
 
-router.post('/challenges/comments/:id/', commentsUpload, challengesController.addComment);
+router.post('/challenges/comments/:id/',  verifyToken,commentsUpload, challengesController.addComment);
 
 // Assuming you have an Express server and a Challenge model
 // with a comments field that is an array of comment objects
@@ -47,7 +51,7 @@ router.get('/challenges/comments/:id', async (req, res) => {
 router.delete('/challenges/comments/:challengeId/:commentId', challengesController.deleteComment);
 
 
-router.post('/challenges/:id/ratings', challengesController.addRating);
+router.post('/challenges/:id/ratings', verifyToken, challengesController.addRating);
 
 router.get('/challenges/:id/leaderboard', challengesController.getLeaderboard);
 

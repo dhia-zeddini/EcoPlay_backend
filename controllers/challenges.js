@@ -98,6 +98,8 @@ const listChallenges = async (req, res) => {
   }
 };
 
+
+
 // Update a challenge by ID
 const updateChallenge = async (req, res) => {
   const challengeId = req.params.id;
@@ -131,7 +133,7 @@ const deleteChallenge = async (req, res) => {
 
 const addParticipant = async (req, res) => {
   const challengeId = req.params.id;
-  const userId = req.body.userId; // Get the user ID from the request body
+  const userId = req.user._id; // Get the user ID from the request body
 
   try {
     const challenge = await ChallengeM.findById(challengeId);
@@ -155,8 +157,8 @@ const addParticipant = async (req, res) => {
 
 
 async function moderateContent(content) {
-  const apiUser = '1347153318';
-  const apiSecret = 'jjSmWzGRPguD7z4wSNZBXmyi9r';
+  const apiUser = '1347153318'
+  const apiSecret = 'jjSmWzGRPguD7z4wSNZBXmyi9r'
   const formBody = new URLSearchParams();
   formBody.append('api_user', apiUser);
   formBody.append('api_secret', apiSecret);
@@ -196,9 +198,10 @@ async function moderateContent(content) {
 
 const addComment = async (req, res) => {
   const challengeId = req.params.id;
-  const { userId, title, description } = req.body;
+  //const userId=req.user._id
+  const { userId,title, description } = req.body;
   const image = req.file ? req.file.filename : '';
-
+console.log(`in comment ${req.user_id}`);
   try {
     const challenge = await ChallengeM.findById(challengeId);
     if (!challenge) {
@@ -213,7 +216,7 @@ const addComment = async (req, res) => {
 
     // If moderation is successful, create and save the new comment
     const newComment = {
-      user: userId,
+      user: req.user,
       title: title,
       description: description,
       image: image,
@@ -244,8 +247,9 @@ const addComment = async (req, res) => {
 // Add a rating to a challenge comment
 const addRating = async (req, res) => {
   const challengeId = req.params.id;
-  const commentId = req.params.commentId; // Assuming you pass the comment ID in the URL
-  const { userId, rating } = req.body;
+  const commentId = req.params.commentId; 
+  const userId=req.user._id
+  const {rating } = req.body;
 
   try {
     const challenge = await ChallengeM.findById(challengeId);
