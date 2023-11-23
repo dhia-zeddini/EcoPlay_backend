@@ -8,11 +8,12 @@ dotenv.config();
  //  Get -- All Products
 
 async function getAllP(req, res ) {
+  console.log("all product");
     try {
       const listP = await ProductM.find();
-      res.status(200).json(
-        listP
-      );
+
+      console.log(listP);
+      res.status(200).json(listP);
     } catch (error) {
       res.status(500).json("An error has occurred!");
     }
