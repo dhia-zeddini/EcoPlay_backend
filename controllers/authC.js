@@ -206,7 +206,7 @@ async function otp(req,res){
       );
       res.status(200).json({ status: true, token: token });
     } else {
-      res.status(403).json("Invalid code");
+      res.status(403).json({ status: false, token: "Invalid code" });
     }
 }
  async function newPwd(req, res) {
@@ -221,7 +221,7 @@ async function otp(req,res){
         res.status(404).json({ status: false, token: "", error: "User not found" });
       } else {
         console.log("ok");
-        res.status(200).json({ status: false, token: "Password updated successfully", error: "" });
+        res.status(200).json({ status: true, token: "Password updated successfully", error: "" });
       }
     
   } catch (error) {

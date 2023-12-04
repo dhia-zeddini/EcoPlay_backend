@@ -9,6 +9,7 @@ import productRoutes from './routes/produitRoutes.js';
 import cartRoutes from './routes/cartRoutes.js'
 import challengesRoute from "./routes/challenges.js"
 import path from 'path';
+import cors from 'cors';
 import { fileURLToPath } from 'url';
 import astuceRoutes from './routes/routeAstuce.js';
 
@@ -20,6 +21,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/", authRoute);

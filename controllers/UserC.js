@@ -91,6 +91,7 @@ const getUser = async (req, res) => {
 };
 
 const getAllUsers = async (req, res) => {
+  console.log("all users");
   try {
     const allUsers = await UserM.find();
     res.status(200).json(allUsers);
@@ -99,4 +100,49 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-export default { updateUser, updateAccount, deleteUser, getUser, getAllUsers };
+const banUser = async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    console.log(userId);
+    const user = await UserM.findById(userId);
+ 
+    if (!user) {
+      res.status(404).json({ message: "user not found" });
+    }else {
+      if (user.blackList) {
+        user.blackList.push(user);
+        await user.save();
+      } else {
+        await user.updateOne({ etatDelete: true });
+      }
+    }
+
+    res.status(200).json({ message: "User blocked successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+const unBanUser = async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    console.log(userId);
+    const user = await UserM.findById(userId);
+ 
+    if (!user) {
+      res.status(404).json({ message: "user not found" });
+    }else {
+      if (user.blackList) {
+        user.blackList.push(user);
+        await user.save();
+      } else {
+        await user.updateOne({ etatDelete: false });
+      }
+    }
+
+    res.status(200).json({ message: "User activated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export default { updateUser, updateAccount, deleteUser, getUser, getAllUsers ,banUser,unBanUser};

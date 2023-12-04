@@ -13,4 +13,6 @@ router.delete("/", verifyToken, UserController.deleteUser);
 router.get("/profile", verifyToken, UserController.getUser);
 router.get("/", UserController.getAllUsers);
 
+router.put("/ban", UserController.banUser);
+router.put("/unBan", UserController.unBanUser);
 export default router;
