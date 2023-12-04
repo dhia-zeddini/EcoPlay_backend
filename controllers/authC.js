@@ -5,8 +5,8 @@ import cartM from "../models/CartM.js";
 
 // import { html } from "../utils/mailTemplate.js";
 
-import twilio from "twilio"
-import dotenv from 'dotenv';
+import twilio from "twilio";
+import dotenv from "dotenv";
 dotenv.config();
 
 const testaccount = await nodemailer.createTestAccount();
@@ -24,34 +24,28 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
 
- async function register(req, res, next) {
+async function register(req, res, next) {
   console.log("api invocked");
 
   console.log(req.body);
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      password,
-    } = req.body;
-  
+    const { firstName, lastName, email, phoneNumber, password } = req.body;
+
     const succRes = await UserService.registerUser(
       firstName,
       lastName,
       email,
       phoneNumber,
       password,
-      req.file?.filename,
+      req.file?.filename
     );
     var newCart = new cartM({
-      User: succRes, 
-       products: [], 
-      totalC:  0, 
-  });
+      User: succRes,
+      products: [],
+      totalC: 0,
+    });
 
-  await newCart.save();
+    await newCart.save();
     res.json({ status: true, success: "User Registered with cart" });
   } catch (error) {
     if (error.keyPattern) {
@@ -75,11 +69,15 @@ async function login(req, res, next) {
     const user = await UserService.checkuser(data);
     console.log(data);
     if (!user) {
-      res.status(404).json({ status: false, token: "", error: "User does not exist" });
+      res
+        .status(404)
+        .json({ status: false, token: "", error: "User does not exist" });
     }
     const isMatch = await UserService.comparePassword(password, user.password);
     if (isMatch === false) {
-      res.status(401).json({ status: false, token: "", error: "Invalid password" });
+      res
+        .status(401)
+        .json({ status: false, token: "", error: "Invalid password" });
     }
 
     const tokenData = { _id: user._id, phoneNumber: user.phoneNumber };
@@ -90,9 +88,55 @@ async function login(req, res, next) {
     res.status(500);
   }
 }
+async function loginAdmin(req, res, next) {
+  console.log("api invocked");
+  console.log(req.body);
+  try {
+    //const { email, password } = req.body;
+    const user = await UserM.findOne({
+      $or: [
+        {
+          email: req.body.email,
+        },
+        {
+          phoneNumber: req.body.email,
+        },
+      ],
+    });
+    console.log(user);
+    if (!user) {
+      res
+        .status(404)
+        .json({ status: false, token: "", error: "User does not exist" });
+    }
+    if (user.role === "ADMIN") {
+      const isMatch = await UserService.comparePassword(
+        req.body.password,
+        user.password
+      );
+      if (isMatch === false) {
+        res
+          .status(401)
+          .json({ status: false, token: "", error: "Invalid password" });
+      }
 
+      const tokenData = { _id: user._id, phoneNumber: user.phoneNumber };
+      const token = await UserService.generateToken(
+        tokenData,
+        "secretKey",
+        "5h"
+      );
+      res.status(200).json({ status: true, token: token, error: "" });
+    } else {
+      res.status(403).json({ status: false, token: "", error:"You are not authorized to perform this action"});
+    }
+  } catch (error) {
+    next(error);
+    res.status(500);
+  }
+}
 
- async function forgetPwd(req, res) {
+async function forgetPwd(req, res) {
   console.log("forget");
   try {
     const random = await UserService.generateCode();
@@ -142,7 +186,7 @@ async function login(req, res, next) {
     res.status(500).json({ error: error.message });
   }
 }
- async function forgetPwdSms(req, res) {
+async function forgetPwdSms(req, res) {
   console.log("forget");
   try {
     const random = await UserService.generateCode();
@@ -172,12 +216,12 @@ async function login(req, res, next) {
         "5h"
       );
       client.messages
-      .create({
-         body: `Hi! ${user.firstName} We have received a request to reset your password. Verification code:${random}`,
-         from: '+12565308558',
-         to: '+21692703351'
-       })
-      .then(message => console.log(message.sid))
+        .create({
+          body: `Hi! ${user.firstName} We have received a request to reset your password. Verification code:${random}`,
+          from: "+12565308558",
+          to: "+21692703351",
+        })
+        .then((message) => console.log(message.sid))
         .catch((error) => {
           console.log(error);
         });
@@ -188,46 +232,47 @@ async function login(req, res, next) {
     res.status(500).json({ error: error.message });
   }
 }
-async function otp(req,res){
-
+async function otp(req, res) {
   const code = req.user.code;
-    const paramCode = req.body.data;
-    console.log(paramCode);
-    if (code.trim() === paramCode.trim()) {
-      const tokenData = {
-        _id: req.user._id,
-        email: req.user.email,
-        code: code,
-      };
-      const token = await UserService.generateToken(
-        tokenData,
-        "secretKey",
-        "5m"
-      );
-      res.status(200).json({ status: true, token: token });
-    } else {
-      res.status(403).json({ status: false, token: "Invalid code" });
-    }
+  const paramCode = req.body.data;
+  console.log(paramCode);
+  if (code.trim() === paramCode.trim()) {
+    const tokenData = {
+      _id: req.user._id,
+      email: req.user.email,
+      code: code,
+    };
+    const token = await UserService.generateToken(tokenData, "secretKey", "5m");
+    res.status(200).json({ status: true, token: token });
+  } else {
+    res.status(403).json({ status: false, token: "Invalid code" });
+  }
 }
- async function newPwd(req, res) {
+async function newPwd(req, res) {
   try {
-   
-      const user = await UserM.findOneAndUpdate(
-        { _id: req.user._id },
-        { password: req.body.password, forgetPwd: null },
-        { new: true }
-      );
-      if (!user) {
-        res.status(404).json({ status: false, token: "", error: "User not found" });
-      } else {
-        console.log("ok");
-        res.status(200).json({ status: true, token: "Password updated successfully", error: "" });
-      }
-    
+    const user = await UserM.findOneAndUpdate(
+      { _id: req.user._id },
+      { password: req.body.password, forgetPwd: null },
+      { new: true }
+    );
+    if (!user) {
+      res
+        .status(404)
+        .json({ status: false, token: "", error: "User not found" });
+    } else {
+      console.log("ok");
+      res
+        .status(200)
+        .json({
+          status: true,
+          token: "Password updated successfully",
+          error: "",
+        });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
   }
 }
 
-export default {register,login,forgetPwd,newPwd,otp,forgetPwdSms};
+export default { register, login, forgetPwd, newPwd, otp, forgetPwdSms,loginAdmin };

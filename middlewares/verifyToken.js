@@ -39,3 +39,15 @@ export const verifyForgetPwd = (req, res, next) => {
     }
   });
 };
+
+export const verifyAdmin = (req, res, next) => {
+  verifyToken(req, res, () => {
+      const userRole = req.user.role;
+
+      if (userRole === 'ADMIN') {
+          next();
+      } else {
+          res.status(403).json("You are not authorized to perform this action");
+      }
+  });
+};

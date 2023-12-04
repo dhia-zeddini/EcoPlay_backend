@@ -33,6 +33,7 @@ export async function checkuser(phoneNumber) {
   }
 }
 
+
 export async function generateToken(tokenData, secretKey, jwt_expire) {
   return jwt.sign(tokenData, secretKey, { expiresIn: jwt_expire });
 }
