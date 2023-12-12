@@ -1,6 +1,7 @@
-import UserM from "../models/UserM.js"; // Assuming .mjs extension for ESM
+//import UserM from "../models/UserM.js"; // Assuming .mjs extension for ESM
 import nodemailer from "nodemailer";
 import UserService from "../services/UserS.js";
+import UserM from "../models/UserM.js";
 import cartM from "../models/CartM.js";
 
 // import { html } from "../utils/mailTemplate.js";
@@ -30,7 +31,6 @@ async function register(req, res, next) {
   console.log(req.body);
   try {
     const { firstName, lastName, email, phoneNumber, password } = req.body;
-
     const succRes = await UserService.registerUser(
       firstName,
       lastName,
@@ -274,5 +274,37 @@ async function newPwd(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+async function newAdmin(req, res, next) {
+  console.log("api invocked");
 
-export default { register, login, forgetPwd, newPwd, otp, forgetPwdSms,loginAdmin };
+  console.log(req.body);
+  try {
+    const { firstName, lastName, email, phoneNumber, password } = req.body;
+    var avatar =req.file?.filename
+
+    const createUser = new UserM({
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      password,
+      avatar,
+      "role":"ADMIN"
+    });
+     await createUser.save();
+   // await newCart.save();
+    res.json({ status: true, success: "Admin Registered  " });
+  } catch (error) {
+    if (error.keyPattern) {
+      console.log("Error", error);
+      res.status(403).json({
+        status: false,
+        success: Object.keys(error.keyPattern)[0] + " already used",
+      });
+    } else {
+      console.log("err", error);
+      res.status(500).json({ status: false, success: "Internal Server Error" });
+    }
+  }
+}
+export default { register, login, forgetPwd, newPwd, otp, forgetPwdSms,loginAdmin,newAdmin };

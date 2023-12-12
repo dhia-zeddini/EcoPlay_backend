@@ -12,6 +12,7 @@ router.put("/", verifyToken, UserController.updateAccount);
 router.delete("/", verifyToken, UserController.deleteUser);
 router.get("/profile", verifyToken, UserController.getUser);
 router.get("/", UserController.getAllUsers);
+router.get("/admins", UserController.getAllAdmins);
 
 router.put("/ban", UserController.banUser);
 router.put("/unBan", UserController.unBanUser);

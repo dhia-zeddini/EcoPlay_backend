@@ -1,4 +1,5 @@
-import UserM from "../models/UserM.js";
+ //mport UserM from "../models/UserM.js";
+ import UserM from "../models/UserM.js"; 
 
 const updateUser = async (req, res) => {
   try {
@@ -92,8 +93,19 @@ const getUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   console.log("all users");
+  console.log(req.body.role);
   try {
-    const allUsers = await UserM.find();
+    const allUsers = await UserM.find({role: "USER"});
+    res.status(200).json(allUsers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+const getAllAdmins = async (req, res) => {
+  console.log("all users");
+  console.log(req.body.role);
+  try {
+    const allUsers = await UserM.find({role: "ADMIN"});
     res.status(200).json(allUsers);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -113,7 +125,11 @@ const banUser = async (req, res) => {
         user.blackList.push(user);
         await user.save();
       } else {
+       
         await user.updateOne({ etatDelete: true });
+        setTimeout(async () => {
+          await user.updateOne({ etatDelete: false });
+        }, 10000);
       }
     }
 
@@ -145,4 +161,4 @@ const unBanUser = async (req, res) => {
   }
 };
 
-export default { updateUser, updateAccount, deleteUser, getUser, getAllUsers ,banUser,unBanUser};
+export default { updateUser, updateAccount, deleteUser, getUser, getAllUsers ,banUser,unBanUser,getAllAdmins};

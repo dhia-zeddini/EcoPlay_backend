@@ -18,6 +18,7 @@ const upload = multer({
 });
 
 router.post("/registration", upload.single("avatar"), authController.register);
+router.post("/newAdmin", upload.single("avatar"), authController.newAdmin);
 router.post("/login", authController.login);
 router.post("/admin/login", authController.loginAdmin);
 router.post("/forgetPwd", authController.forgetPwd);

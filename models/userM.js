@@ -104,6 +104,6 @@ userSchema.pre("findOneAndUpdate", async function () {
     throw error;
   }
 });
-
+//mongoose.deleteModel('User');
 const UserM = model("User", userSchema);
 export default UserM;
