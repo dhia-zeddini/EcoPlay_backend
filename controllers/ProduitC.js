@@ -47,7 +47,7 @@ async function getAllP(req, res ) {
   
       // Handle image file if uploaded
       if (req.file) {
-        const networkIP = '192.168.99.207'; // Replace with your actual server IP or hostname
+        const networkIP = '192.168.128.207'; // Replace with your actual server IP or hostname
   
         // Set the image field to be a string containing the URL to the image
         // Adjust the port (9001) and path ('/img/') if different in your setup
@@ -72,30 +72,35 @@ async function getAllP(req, res ) {
   }
   
 
-
-
-
   // update Product
 
-  async function updateP(req, res) {
-    try {
-      const produitId = req.body.produitId;
-      const updatedData = req.body;
-  
-      const updatedProduct = await ProductM.findByIdAndUpdate(produitId, updatedData, { new: true });
-  
-      if (updatedProduct) {
-        res.status(200).json({
-          message: 'Product updated successfully',
-          product: updatedProduct,
-        });
-      } else {
-        res.status(404).json({ message: 'Product not found' });
-      }
-    } catch (error) {
-      res.status(500).json("An error has occurred!");
+ // Assuming req.body contains { produitId, nameP, descriptionP, priceP, typeP }
+async function updateP(req, res) {
+  try {
+    const produitId = req.body.produitId;
+    const update = {
+      nameP: req.body.nameP,
+      descriptionP: req.body.descriptionP,
+      priceP: req.body.priceP,
+      typeP: req.body.typeP
+    };
+
+    const updatedProduct = await ProductM.findByIdAndUpdate(produitId, update, { new: true });
+
+    if (updatedProduct) {
+      res.status(200).json({
+        message: 'Product updated successfully',
+        product: updatedProduct
+      });
+    } else {
+      res.status(404).json({ message: 'Product not found' });
     }
+  } catch (error) {
+    res.status(500).json({ message: 'An error has occurred!', error: error.toString() });
   }
+}
+
+  
 
 
   /// delete product

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-  addCart,addProductToCart,getAllC,removeProductToCart,getPById,calculateCartTotal,pay
+  addCart,addProductToCart,getAllC,removeProductToCart,getPById,calculateCartTotal,pay,getMonthlyStripePayments
   
 } from '../controllers/CartC.js';
 import stripeModule from 'stripe';
@@ -19,4 +19,5 @@ router.post('/get',getPById);
 router.get('/getall',getAllC);
 router.post('/total', calculateCartTotal);
 router.post('/pay',pay);
+router.get('/payments/:year/:month', getMonthlyStripePayments);
 export default router;

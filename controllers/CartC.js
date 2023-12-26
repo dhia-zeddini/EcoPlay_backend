@@ -7,6 +7,7 @@ import ProduitM from "../models/ProductM.js";
 
 // Add a new
 async function addCart(req, res) {
+
     try {
         var { userId, totalC ,products} = req.body;
 
@@ -19,7 +20,9 @@ async function addCart(req, res) {
 
         await newCart.save();
 
-        res.status(201).json({
+        res.status(201).json({      
+
+
             message: 'Cart added successfully',
             cart: newCart,
         });
@@ -27,9 +30,11 @@ async function addCart(req, res) {
         res.status(500).json('An error has occurred');
     }
 }
-
 async function pay(req, res) {
   try {
+    console.log("reqqqqqqqqqqqqqqqq");
+    console.log(req.body);   
+    
     const { totalC } = req.body; // Get the total amount from the request body
     console.log('Creating payment intent with amount:', totalC); // Log the amount for debugging
     const paymentIntent = await stripe.paymentIntents.create({
@@ -56,7 +61,8 @@ async function getPById(req, res) {
     const products = cart.product;  // This will give you the array of populated products
 
     // Return just the list of products for this cart
-    res.json(products);
+    res.json(products                  
+      );
   } catch (error) {
     res.status(500).json({ error: "An error has occurred!" });
   }
@@ -159,6 +165,41 @@ async function calculateCartTotal(req, res) {
   }
 }
 
+///////////////////// NEW
+async function fetchStripePaymentsForMonth(year, month) {
+  // Assuming year and month are integers representing the year and month for which you want to fetch payments
+  const startOfMonth = new Date(year, month - 1, 1).getTime() / 1000;
+  const endOfMonth = new Date(year, month, 0).getTime() / 1000;
+
+  try {
+    const payments = await stripe.charges.list({
+      created: {
+        gte: startOfMonth,
+        lte: endOfMonth,
+      },
+      limit: 100,
+    });
+    return payments.data;
+  } catch (error) {
+    console.error('Error fetching payments from Stripe:', error);
+    throw error;
+  }
+}
+
+async function getMonthlyStripePayments(req, res) {
+  const { year, month } = req.params;
+
+  try {
+    const payments = await fetchStripePaymentsForMonth(parseInt(year), parseInt(month));
+    res.json({ data: payments });
+  } catch (error) {
+    console.error('Error fetching monthly payments:', error);
+    res.status(500).json({ message: 'Failed to fetch monthly payments', error: error.message });
+  }
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-export { addCart, addProductToCart ,removeProductToCart,getAllC,getPById,calculateCartTotal,pay};
+export { addCart, addProductToCart ,removeProductToCart,getAllC,getPById,calculateCartTotal,pay,getMonthlyStripePayments};
