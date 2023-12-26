@@ -30,6 +30,8 @@ async function addCart(req, res) {
 
 async function pay(req, res) {
   try {
+    
+    
     const { totalC } = req.body; // Get the total amount from the request body
     console.log('Creating payment intent with amount:', totalC); // Log the amount for debugging
     const paymentIntent = await stripe.paymentIntents.create({
@@ -161,5 +163,40 @@ async function calculateCartTotal(req, res) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
+async function fetchStripePaymentsForMonth(year, month) {
+  // Assuming year and month are integers representing the year and month for which you want to fetch payments
+  const startOfMonth = new Date(year, month - 1, 1).getTime() / 1000;
+  const endOfMonth = new Date(year, month, 0).getTime() / 1000;
 
-export { addCart, addProductToCart ,removeProductToCart,getAllC,getPById,calculateCartTotal,pay};
+  try {
+    const payments = await stripe.charges.list({
+      created: {
+        gte: startOfMonth,
+        lte: endOfMonth,
+      },
+      limit: 100,
+    });
+    return payments.data;
+  } catch (error) {
+    console.error('Error fetching payments from Stripe:', error);
+    throw error;
+  }
+}
+
+async function getMonthlyStripePayments(req, res) {
+  const { year, month } = req.params;
+
+  try {
+    const payments = await fetchStripePaymentsForMonth(parseInt(year), parseInt(month));
+    res.json({ data: payments });
+  } catch (error) {
+    console.error('Error fetching monthly payments:', error);
+    res.status(500).json({ message: 'Failed to fetch monthly payments', error: error.message });
+  }
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+export { addCart, addProductToCart ,removeProductToCart,getAllC,getPById,calculateCartTotal,pay,getMonthlyStripePayments};

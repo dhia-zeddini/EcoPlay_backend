@@ -12,6 +12,7 @@ import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import astuceRoutes from './routes/routeAstuce.js';
+import QuizResultRoute from "./routes/QuizResultRoute.js"
 
 dotenv.config();
 const app =express()
@@ -30,6 +31,7 @@ app.use('/products', productRoutes);
 app.use('/carts', cartRoutes);
 app.use('/api', challengesRoute);
 app.use('/astuce', astuceRoutes);
+app.use('/QuizR', QuizResultRoute); 
 
 app.get("/", (req, res) => {
   res.send("hello");

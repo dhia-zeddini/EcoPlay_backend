@@ -16,8 +16,10 @@ dotenv.config();
  //  Get -- All Astuces//
 
 async function getAllA(req, res ) {
+  console.log("astuce");
     try {
       const listA = await AstuceM.find();
+      //console.log(listA);
       res.status(200).json(
         listA
       );
